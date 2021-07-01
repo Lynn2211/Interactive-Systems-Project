@@ -25,6 +25,6 @@ public class RotationHandler : MonoBehaviour,IUpdateSelectedHandler,IPointerDown
 
      private void RotateShaft()
      {
-         shaft.transform.Rotate(0,45,0);
+         shaft.transform.Rotate(0,1,0);
      }
  }

@@ -1,33 +1,27 @@
- using System;
- using System.Collections;
- using System.Collections.Generic;
- using System.Diagnostics;
- using System.Runtime.InteropServices.WindowsRuntime;
- using UnityEngine;
- using UnityEngine.Events;
- using UnityEngine.EventSystems;
- using UnityEngine.UI;
- using Debug = UnityEngine.Debug;
+using UnityEngine;
+using UnityEngine.UI;
 
- public class ArduinoButton : MonoBehaviour {
+public class ArduinoButton : MonoBehaviour {
      
      private float startTime, endTime, waitCharStart, waitLetterStart;
 
      [SerializeField] private float dotLength = 500;
 
-     public Text text;
+     public Text textAscii;
      public Text textTimer;
      public Text timerLeftToClick;
+     public Text textHexa;
 
      public GameObject shaft;
 
      private string inputList = "";
 
+     private string hexOutput;
+
      private int decimalRepresentation;
      private char letter;
 
      private bool clickStarted;
-     private bool clickCanceled;
      private bool clickEnded;
      private bool waitForNewChar = false;
      private bool waitForNewLetter = false;
@@ -37,7 +31,9 @@
      // Use this for initialization
      void Start ()
      {
-         text.text = "";
+         textAscii.text = "Ascii-Message: ";
+         textHexa.text = "Hex-Message: ";
+         shaft.transform.rotation = new Quaternion(0,0,0,0);
      }
      
      // Update is called once per frame
@@ -50,7 +46,6 @@
          {
              startTime = Time.time;
              clickStarted = true;
-             clickCanceled = false;
              clickEnded = false;
          }
 
@@ -90,9 +85,9 @@
              waitForNewChar = true;
          }
 
-         if (Time.time - waitCharStart < dotLength * 3)
+         if (Time.time - waitCharStart < dotLength)
          {
-             timerLeftToClick.text = "Time for new morse part: " + ((dotLength * 3) - (Time.time - waitCharStart));
+             timerLeftToClick.text = "Time for new morse part: " + (dotLength - (Time.time - waitCharStart));
              if (!Input.GetMouseButtonDown(0)) return;
              ResetLocks();
              startTime = Time.time;
@@ -105,6 +100,7 @@
              decimalRepresentation = MorseToDecimal(inputList);
              letter = MorseToChar(inputList);
              inputList = "";
+             hexOutput = decimalRepresentation.ToString("X");
          }
 
          if (decimalRepresentation == -1)
@@ -115,9 +111,10 @@
 
          if (!letterCorrect)
          {
-             text.text += letter;
+             textAscii.text +=  letter;
+             textHexa.text += hexOutput;
              var mappedValue = Mathf.Lerp(0, 180, Mathf.InverseLerp(65, 90, decimalRepresentation));
-             shaft.transform.rotation = new Quaternion(0,mappedValue,0,0);
+             shaft.transform.eulerAngles = new Vector3(0, mappedValue, 0);
              letterCorrect = true;
          }
          
@@ -138,12 +135,12 @@
          }
          
          ResetLocks();
-         text.text += "-";
+         textAscii.text += " ";
+         textHexa.text += "20";
      }
 
      private void ResetLocks()
      {
-         clickCanceled = false;
          clickEnded = false;
          clickStarted = false;
          waitForNewLetter = false;
