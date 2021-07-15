@@ -44,7 +44,7 @@ void loop() {
 
   //Determine whether a dot or dash was sent
   char morseChar;
-  if(duration <= dotLength){
+  if(duration < dotLength*3){
     morseChar = '.';
     }
     else{
@@ -53,7 +53,7 @@ void loop() {
 
   inputList += morseChar;
 
-  //Wait for 3 dots if the user sends another signal 
+  //Wait 3 dots after button press
   //If the user does not send another signal the inputList will be mapped to a letter
   while((millis() - endTime) < (dotLength * 3)){
     if(digitalRead(BUTTON_PIN) == LOW){
@@ -86,7 +86,7 @@ void loop() {
   //Move the servo to the corresponding position of the letter
   SERVO.write(map(decRepresentation, 65, 90, 0, 180));
   
-  //Wait for 7 dots if the user sends another signal 
+  //Wait 7 dots after button press
   //If the user does not send another signal a space will be added
   while((millis() - endTime) < (dotLength * 7)){
     yield();
