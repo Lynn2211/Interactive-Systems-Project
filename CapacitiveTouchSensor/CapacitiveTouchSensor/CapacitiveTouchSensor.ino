@@ -20,6 +20,7 @@ bool lightOn = false;
 
 Servo SERVO;
 
+//
 CapacitiveSensor sensor = CapacitiveSensor(14, 13);
 
 void setup() {
@@ -28,7 +29,7 @@ void setup() {
   
   //Attach the servo pin
   SERVO.attach(SERVO_PIN, 544, 2500);
-
+  SERVO.write(0);
   
 
   pinMode(LED_BUILTIN, OUTPUT);
@@ -87,7 +88,7 @@ void loop() {
   
 
   //Move the servo to the corresponding position of the letter
-  SERVO.write(map(decRepresentation, 65, 90, 0, 180));
+  SERVO.write(map(decRepresentation, 64, 90, 0, 180));
   
   //Wait if 7 dots have passed since the button press
   //If the user does not send another signal a space will be added
@@ -106,7 +107,9 @@ void loop() {
       //Print a space
       Serial.println(" ");
       }
-  
+
+  //Rotate Servo for space
+  SERVO.write(map(32, 64, 90, 0, 180));
 }
 
 

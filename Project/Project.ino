@@ -25,6 +25,7 @@ void setup() {
   
   //Attach the servo pin
   SERVO.attach(SERVO_PIN, 544, 2500);
+  SERVO.write(0);
 
   //Set the button to pullup
   pinMode(BUTTON_PIN, INPUT_PULLUP);
@@ -76,6 +77,7 @@ void loop() {
   if(hexOutput){
     //Convert the letter to hexadecimal and output it to the serial monitor
     String outputAsHex = String(decRepresentation, HEX);
+    
     Serial.println(outputAsHex);
     }else{
       //Print the ascii letter
@@ -84,7 +86,7 @@ void loop() {
   
 
   //Move the servo to the corresponding position of the letter
-  SERVO.write(map(decRepresentation, 65, 90, 0, 180));
+  SERVO.write(map(decRepresentation, 64, 90, 0, 180));
   
   //Wait 7 dots after button press
   //If the user does not send another signal a space will be added
@@ -103,6 +105,9 @@ void loop() {
       //Print a space
       Serial.println(" ");
       }
+
+  //Rotate Servo for space
+  SERVO.write(map(32, 64, 90, 0, 180));
   
 }
 

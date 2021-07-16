@@ -114,7 +114,7 @@ public class ArduinoButton : MonoBehaviour {
              textAscii.text +=  letter;
              textHexa.text += hexOutput;
              var mappedValue = Mathf.Lerp(0, 180, Mathf.InverseLerp(65, 90, decimalRepresentation));
-             shaft.transform.eulerAngles = new Vector3(0, mappedValue, 0);
+             shaft.transform.localEulerAngles = new Vector3(0, 0, mappedValue);
              letterCorrect = true;
          }
          
@@ -137,6 +137,8 @@ public class ArduinoButton : MonoBehaviour {
          ResetLocks();
          textAscii.text += " ";
          textHexa.text += "20";
+         
+         shaft.transform.localEulerAngles = new Vector3(0, 0, 0);
      }
 
      private void ResetLocks()
