@@ -20,7 +20,8 @@ bool lightOn = false;
 
 Servo SERVO;
 
-//
+//Capacitive touch sensor with a 100k ohm resistor 
+//between aluminium foil and pin 14
 CapacitiveSensor sensor = CapacitiveSensor(14, 13);
 
 void setup() {
@@ -36,14 +37,19 @@ void setup() {
 }
 
 void loop() {
-  //Wait for a button press and determine the length
+  //Wait for a button press
   while(sensor.capacitiveSensor(100) < 100){
     takeInputFromUnity();
   }
+  //Take the start time of the press
   startTime = millis();
-  while(sensor.capacitiveSensor(100) >= 100){yield();}
-  endTime = millis();
 
+  //Wait for the end of the button press
+  while(sensor.capacitiveSensor(100) >= 100){yield();}
+
+  //Take the end time of the press
+  endTime = millis();
+  
   long duration = endTime - startTime;
 
   //Determine whether a dot or dash was sent
@@ -55,11 +61,12 @@ void loop() {
       morseChar = '-';
     }
 
+  //Append the morse character to the input list
   inputList += morseChar;
 
   //Wait if 3 dots have passed since the button press
   //If the user does not send another signal the inputList will be mapped to a letter
-  while((millis() - endTime) < (dotLength*3)){
+  while((millis() - endTime) < (dotLength * 3)){
     if(sensor.capacitiveSensor(100) >= 100){
       //Go back to the start of the loop and add another dot or dash
       return;
@@ -71,8 +78,10 @@ void loop() {
   int decRepresentation = morseToDecimal(inputList);
   char letter = morseToChar(inputList);
 
+  //Clear the input list
   inputList = "";
-  
+
+  //If the code was invalid aboard
   if(decRepresentation == -1){
     return;
     }
@@ -112,9 +121,10 @@ void loop() {
   SERVO.write(map(32, 64, 90, 0, 180));
 }
 
-
 void takeInputFromUnity(){
+  //If a message on the serial port is available read it
   if(Serial.available() > 0){
+    //If the message was '1' switch the LED
       if(Serial.read() == '1'){
         if(lightOn){
           digitalWrite(LED_BUILTIN, LOW);

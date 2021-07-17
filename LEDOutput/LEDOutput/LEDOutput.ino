@@ -35,12 +35,17 @@ void setup() {
 }
 
 void loop() {
-  //Wait for a button press and determine the length
+  //Wait for a button press
   while(digitalRead(BUTTON_PIN) == HIGH){
     takeInputFromUnity();
   }
+  //Take the start time of the press
   startTime = millis();
+
+  //Wait for the end of the button press
   while(digitalRead(BUTTON_PIN) == LOW){yield();}
+
+  //Take the end time of the press
   endTime = millis();
 
   long duration = endTime - startTime;
@@ -54,9 +59,10 @@ void loop() {
       morseChar = '-';
     }
 
+  //Append the morse character to the input list
   inputList += morseChar;
 
-  //Wait 3 dots after button press
+  //Wait if 3 dots have passed since the button press
   //If the user does not send another signal the inputList will be mapped to a letter
   while((millis() - endTime) < (dotLength * 3)){
     if(digitalRead(BUTTON_PIN) == LOW){
@@ -70,8 +76,10 @@ void loop() {
   int decRepresentation = morseToDecimal(inputList);
   char letter = morseToChar(inputList);
 
+  //Clear the input list
   inputList = "";
-  
+
+  //If the code was invalid aboard
   if(decRepresentation == -1){
     return;
     }
@@ -89,7 +97,7 @@ void loop() {
   //Light up the LEDs in binary representation
   lightUpLeds(decRepresentation);
   
-  //Wait 7 dots after button press
+  //Wait if 7 dots have passed since the button press
   //If the user does not send another signal a space will be added
   while((millis() - endTime) < (dotLength * 7)){
     yield();
@@ -107,23 +115,25 @@ void loop() {
       Serial.println(" ");
       }
 
+  //Light up the LEDs for a <space>
    lightUpLeds(32);
 
-   startTime = millis();
-
-   while(millis()- startTime) < 1000){
-    if(digitalRead(BUTTON_PIN) == LOW){
-      //Go back to the start of the loop to add another letter
-      return;
-     }
+  //Keep the light on for 1s then turn it off
+  startTime = millis();
+  while(millis()- startTime) < 1000){
+  if(digitalRead(BUTTON_PIN) == LOW){
+    //Go back to the start of the loop to add another letter
+    return;
    }
-  
+  }
    lightUpLeds(0);
 }
 
 
 void takeInputFromUnity(){
+  //If a message on the serial port is available read it
   if(Serial.available() > 0){
+    //If the message was '1' switch the LED
       if(Serial.read() == '1'){
         if(lightOn){
           digitalWrite(LED_BUILTIN, LOW);
@@ -140,6 +150,7 @@ void takeInputFromUnity(){
     }
 }
 
+//Lights up the LEDs in binary representation, leading zeros allowed
 void lightUpLeds(int value){
   Serial.println(String(value, BIN));
 
