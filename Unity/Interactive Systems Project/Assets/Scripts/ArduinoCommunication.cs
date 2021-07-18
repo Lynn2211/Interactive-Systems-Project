@@ -1,13 +1,11 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using System.IO.Ports;
 
 public class ArduinoCommunication : MonoBehaviour
 {
+    //Define our port as COM3 with baudRate 9600
     private SerialPort arduinoPort = new SerialPort("\\\\.\\COM3", 9600);
-    public string input;
 
     // Start is called before the first frame update
     private void Start()
@@ -19,6 +17,7 @@ public class ArduinoCommunication : MonoBehaviour
     // Update is called once per frame
     private void Update()
     {
+        //We try to read a line from the port and print it to the console
         try
         {
             print(arduinoPort.ReadLine());
@@ -31,6 +30,7 @@ public class ArduinoCommunication : MonoBehaviour
 
     private void OnDisable()
     {
+        //Close the port after closing
         print("port closed");
         arduinoPort.Close();
     }

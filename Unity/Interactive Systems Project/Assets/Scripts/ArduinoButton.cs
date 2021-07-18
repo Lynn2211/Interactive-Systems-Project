@@ -7,20 +7,22 @@ public class ArduinoButton : MonoBehaviour {
 
      [SerializeField] private float dotLength = 500;
 
+     //Visualization texts
      public Text textAscii;
      public Text textTimer;
      public Text timerLeftToClick;
      public Text textHexa;
 
+     //Servo game object
      public GameObject shaft;
 
      private string inputList = "";
-
-     private string hexOutput;
-
+     
      private int decimalRepresentation;
      private char letter;
+     private string hexOutput;
 
+     //Locks to skip certain steps in the Update function
      private bool clickStarted;
      private bool clickEnded;
      private bool waitForNewChar = false;
@@ -38,63 +40,76 @@ public class ArduinoButton : MonoBehaviour {
      
      // Update is called once per frame
      private void Update () {
+         //Fire a raycast at the screen
          var ray = Camera.main.ScreenPointToRay(Input.mousePosition);
          RaycastHit Hit;
+         
          float duration = 0;
 
+         //Detect if the button was pressed
          if (Input.GetMouseButtonDown(0) && Physics.Raycast(ray, out Hit) && Hit.collider.gameObject == gameObject && !clickStarted)
          {
+             //Take the start time and enable lock to skip this step
              startTime = Time.time;
              clickStarted = true;
              clickEnded = false;
          }
 
+         //Update text if the user is not pressing
          if (!clickStarted)
          {
              timerLeftToClick.text = "Waiting for Input";
              return;
          }
          
+         //Detect if the button press ended
          if (Input.GetMouseButtonUp(0) && Physics.Raycast(ray, out Hit) && Hit.collider.gameObject == gameObject && !clickEnded)
          {
+             //Take the end time and enable lock to skip this step
              endTime = Time.time;
              clickEnded = true;
          }
 
+         //Detect if the mouse left the button
          if (!(Input.GetMouseButton(0) && Physics.Raycast(ray, out Hit) && Hit.collider.gameObject == gameObject) && clickStarted && !clickEnded)
          {
+             //Take the end time and enable lock to skip this step
              endTime = Time.time;
              clickEnded = true;
          }
 
+         //Visualization
          textTimer.text = "Length of press: " + (Time.time - startTime);
 
+         //Only pass this line if a press was measured
          if (!clickEnded) return;
+         
          duration = endTime - startTime;
+         
+         //Visualization
          textTimer.text = "Length of press: " + duration;
 
+         //Detect if the signal was a dot or a dash
          if (!signalAdded)
          {
+             //Append the char to the input list and lock this step
              inputList += duration <= dotLength * 3 ? '.' : '-';
              signalAdded = true;
          }
-       
-         if (!waitForNewChar)
-         {
-             waitCharStart = Time.time;
-             waitForNewChar = true;
-         }
 
-         if (Time.time - waitCharStart < dotLength)
+         //Wait for 3 dots if the user wants to add another signal
+         if (Time.time - endTime < dotLength*3)
          {
-             timerLeftToClick.text = "Time for new morse part: " + (dotLength - (Time.time - waitCharStart));
+             timerLeftToClick.text = "Time for new morse part: " + (dotLength*3 - (Time.time - endTime));
              if (!Input.GetMouseButtonDown(0)) return;
+             //If the user presses again reset locks and start a new click
              ResetLocks();
              startTime = Time.time;
              clickStarted = true;
              return;
          }
-
+        
+         //Convert the Morse code to decimal and hexadecimal and clear the input list
          if (!letterCorrect)
          {
              decimalRepresentation = MorseToDecimal(inputList);
@@ -102,13 +117,15 @@ public class ArduinoButton : MonoBehaviour {
              inputList = "";
              hexOutput = decimalRepresentation.ToString("X");
          }
-
+        
+         //Check if the Morse code was invalid and reset if true
          if (decimalRepresentation == -1)
          {
              ResetLocks();
              return;
          }
 
+         //Output the hex and letter and rotate the Servo
          if (!letterCorrect)
          {
              textAscii.text +=  letter;
@@ -117,27 +134,27 @@ public class ArduinoButton : MonoBehaviour {
              shaft.transform.localEulerAngles = new Vector3(0, 0, mappedValue);
              letterCorrect = true;
          }
-         
-         if (!waitForNewLetter)
+
+         //Wait for 3 dots if the user wants to add another signal
+         if (Time.time - endTime < dotLength * 7)
          {
-             waitLetterStart = Time.time;
-             waitForNewLetter = true;
-         }
-         
-         if (Time.time - waitLetterStart < dotLength * 7)
-         {
-             timerLeftToClick.text = "Time for new letter: " + ((dotLength * 7) - (Time.time - waitLetterStart));
+             timerLeftToClick.text = "Time for new letter: " + ((dotLength * 7) - (Time.time - endTime));
              if (!Input.GetMouseButtonDown(0)) return;
+             //If the user presses again reset locks and start a new click
              ResetLocks();
              startTime = Time.time;
              clickStarted = true;
              return;
          }
          
+         //Reset the locks
          ResetLocks();
+         
+         //Add a space to hex and ASCII message
          textAscii.text += " ";
          textHexa.text += "20";
          
+         //Rotate Servo back to <space>
          shaft.transform.localEulerAngles = new Vector3(0, 0, 0);
      }
 
@@ -194,7 +211,7 @@ public class ArduinoButton : MonoBehaviour {
          return 'e';
      }
 
-     private int MorseToDecimal(string input)
+     private static int MorseToDecimal(string input)
      {
          switch(input.Length){
              case 1: 
