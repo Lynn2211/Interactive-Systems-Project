@@ -120,7 +120,7 @@ void loop() {
 
   //Keep the light on for 1s then turn it off
   startTime = millis();
-  while(millis()- startTime) < 1000){
+  while((millis()- startTime) < 1000){
   if(digitalRead(BUTTON_PIN) == LOW){
     //Go back to the start of the loop to add another letter
     return;

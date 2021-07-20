@@ -1,4 +1,4 @@
-ted#include <Servo.h>
+#include <Servo.h>
 
 //Set the pins that are used
 #define BUTTON_PIN 12
